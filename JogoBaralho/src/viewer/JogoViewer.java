@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Random;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.EmptyBorder;
 
+import model.Carta;
 import model.Jogador;
 import pilhaEncadeada.Pilha;
 import controller.IController;
@@ -25,40 +27,86 @@ public class JogoViewer extends JFrame implements IViewerJogo{
 
 	private static final long serialVersionUID = -3376873223392399044L;
 	
+	/* Caminho Dos Arquivos */
 	private static final String URL_RESOURCES = "resources/";
 	private static final String PATH_META_INF = URL_RESOURCES + "META-INF/";
 	private static final String PATH_IMG = PATH_META_INF + "img/";
+	private static final String PATH_CARTAS = PATH_IMG + "cartas/";
+	private static final String PATH_3 = PATH_CARTAS + "3/";
+	private static final String PATH_9 = PATH_CARTAS + "9/";
+	private static final String PATH_AS = PATH_CARTAS + "As/";
+	private static final String PATH_K = PATH_CARTAS + "k/";
+	
+	
+	/* Nome das imagens */
 	private static final String TABLE_FILE_IMG = PATH_IMG + "table.png";
 	private static final String PROFILE_FILE_IMG = PATH_IMG + "profile.png";
 	private static final String VEZ_FILE_IMG = PATH_IMG + "vez.png";
+	private static final String COPAS = "copas.png";
+	private static final String ESPADAS = "espadas.png";
+	private static final String OUROS = "ouros.png";
+	private static final String PAUS = "paus.png";
 	
+	/* Imagens */
 	private static final ImageIcon TABLE_IMG = new ImageIcon(TABLE_FILE_IMG);
 	private static final ImageIcon PROFILE_IMG = new ImageIcon(PROFILE_FILE_IMG);
 	private static final ImageIcon VEZ_IMG = new ImageIcon(VEZ_FILE_IMG);
+	private static final ImageIcon[] cartas_As = {new ImageIcon(PATH_AS + "As" + COPAS),new ImageIcon(PATH_AS + "As" + ESPADAS),new ImageIcon(PATH_AS + "As" + OUROS),new ImageIcon(PATH_AS + "As" + PAUS)};
+	private static final ImageIcon[] cartas_3 = {new ImageIcon(PATH_3 + "3" + COPAS),new ImageIcon(PATH_3 + "3" + ESPADAS),new ImageIcon(PATH_3 + "3" + OUROS),new ImageIcon(PATH_3 + "3" + PAUS)};
+	private static final ImageIcon[] cartas_9 = {new ImageIcon(PATH_9 + "9" + COPAS),new ImageIcon(PATH_9 + "9" + ESPADAS),new ImageIcon(PATH_9 + "9" + OUROS),new ImageIcon(PATH_9 + "9" + PAUS)};
+	private static final ImageIcon[] cartas_K = {new ImageIcon(PATH_K + "K" + COPAS),new ImageIcon(PATH_K + "K" + ESPADAS),new ImageIcon(PATH_K + "K" + OUROS),new ImageIcon(PATH_K + "K" + PAUS)};
 	
+	/* Panel e String do  Histórico do Jogo */
 	private JTextPane txtpnjogo = new JTextPane();
+	private StringBuilder historico = new StringBuilder("");
+	/* Profile 1 */
 	private JLabel profile1 = new JLabel("");
 	private JLabel lblJogador1 = new JLabel("<Jogador 1>");
+	
+	/* Profile 2 */
 	private JLabel profile2 = new JLabel("");
 	private JLabel lblJogador2 = new JLabel("<Jogador 2>");
+	
+	/* Profile 3 */
 	private JLabel profile3 = new JLabel("");
 	private JLabel lblJogador3 = new JLabel("<Jogador 3>");
+	
+	/* Profile 4 */
 	private JLabel profile4 = new JLabel("");
 	private JLabel lblJogador4 = new JLabel("<Jogador 4>");
+	
+	/* Profile 5 */
 	private JLabel profile5 = new JLabel("");
 	private JLabel lblJogador5 = new JLabel("<Jogador 5>");
+	
+	/* Profile 6 */
 	private JLabel profile6 = new JLabel("");
 	private JLabel lblJogador6 = new JLabel("<Jogador 6>");
+	
+	/* Profile 7 */
 	private JLabel profile7 = new JLabel("");
 	private JLabel lblJogador7 = new JLabel("<Jogador 7>");
+	
+	/* Profile 8 */
 	private JLabel profile8 = new JLabel("");
 	private JLabel lblJogador8 = new JLabel("<Jogador 8>");
+	
+	/* Profile 9 */
 	private JLabel profile9 = new JLabel("");
 	private JLabel lblJogador9 = new JLabel("<Jogador 9>");
+	
+	/* Profile 10 */
 	private JLabel profile10 = new JLabel("");
 	private JLabel lblJogador10 = new JLabel("<Jogador 10>");
+	
+	/* Imagem que representa a vez do Jogaodr */
 	private JLabel vez = new JLabel("Vez");
 	
+	
+	/* Carta */
+	private JLabel carta = new JLabel("");
+	
+	/* Button Recomeçar */
 	private JButton recomecar = new JButton("Recomeçar");
 	
 	private JLabel[] profiles = {profile1,profile2,profile3,profile4,profile5,profile6,profile7,profile8,profile9,profile10};
@@ -66,7 +114,7 @@ public class JogoViewer extends JFrame implements IViewerJogo{
 	
 	private JPanel contentPane;
 	private IControllerJogo ctrl; 
-	private StringBuilder historico = new StringBuilder("");
+	
 	
 	public JogoViewer(IControllerJogo c) {
 		this.ctrl = c;
@@ -123,6 +171,9 @@ public class JogoViewer extends JFrame implements IViewerJogo{
 		profile2.setBounds(334, 275, 48, 48);
 		contentPane.add(profile2);
 		
+		carta.setBounds(350,180,80,80);
+		carta.setVisible(false);
+		contentPane.add(carta);
 		
 		lblJogador2.setBounds(320, 324, 100, 16);
 		contentPane.add(lblJogador2);
@@ -330,5 +381,38 @@ public class JogoViewer extends JFrame implements IViewerJogo{
 	@Override
 	public void messageGanhador(String s) {
 		JOptionPane.showMessageDialog(null, s, "Ganhador do Jogo do Baralho", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	@Override
+	public void setCarta(Carta c) {
+		this.carta.setIcon(getRandomCarta(c.getNumero()));
+		this.carta.setVisible(true);
+	}
+	
+	
+	private ImageIcon getRandomCarta(int n){
+		Random r = new Random();
+		int i = -1;
+		switch(n){
+			case 1:
+				i = (r.nextInt(cartas_As.length));
+				return cartas_As[i];
+			
+			case 3:
+				i = (r.nextInt(cartas_3.length));
+				return cartas_3[i];		
+				
+			case 9:
+				i = (r.nextInt(cartas_9.length));
+				return cartas_9[i];
+				
+			case 13:
+				i = (r.nextInt(cartas_K.length));
+				return cartas_K[i];		
+				
+			default:
+				i=-1;
+		}
+		return null;
 	}
 }

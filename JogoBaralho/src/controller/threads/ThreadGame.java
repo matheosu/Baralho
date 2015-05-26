@@ -1,16 +1,18 @@
 package controller.threads;
 
+import listaDuplamenteEncadeadaCircular.Node;
 import model.Acao;
 import model.Carta;
 import model.Jogador;
 import model.Jogo;
+import model.Sentido;
 import viewer.IViewerJogo;
 import controller.IControllerJogo;
 
 public class ThreadGame implements Runnable{
 	
-	private static final int TEMPO_PARADA = 1 * 1000; 
-	private static IViewerJogo vw;
+	private static final int TEMPO_PARADA = 3 * 1000; 
+	private IViewerJogo vw;
 	private IControllerJogo ctrl; 
 	private Jogo jogo;
 	
@@ -21,11 +23,20 @@ public class ThreadGame implements Runnable{
 			vw.setHistorico("Vez do Jogador: " + jogo.getVez());
 			try {
 				Thread.sleep(TEMPO_PARADA);
+				
+				// Pega uma carta
 				Carta carta = jogo.getRandomCarta();
+				vw.setCarta(carta);
 				vw.setHistorico("Carta escolida: " + carta);
+				
 				Thread.sleep(TEMPO_PARADA);
+				
+				// Realiza ação da carta
 				jogo = realizarAcao(jogo, carta.getAcao());
+				
 				Thread.sleep(TEMPO_PARADA);
+				
+				// Pula para o próximo jogador
 				jogo.proximo();
 			} catch (InterruptedException e) {
 				System.err.println("Deu ruim " + e);
@@ -45,7 +56,7 @@ public class ThreadGame implements Runnable{
 	}
 	
 	
-	private static Jogo realizarAcao(Jogo jogo, Acao acao){
+	private Jogo realizarAcao(Jogo jogo, Acao acao){
 		switch(acao){
 			case PULA_PROXIMO_PASSA_VEZ:
 				jogo.proximo();
@@ -62,9 +73,18 @@ public class ThreadGame implements Runnable{
 				break;
 				
 			case ELIMINA_JOGADOR_ANTERIOR:
-				Jogador anterior = jogo.getJogadores().getNodeByInfo(jogo.getVez()).getBack().getInfo();
-				jogo.getJogadores().remove(anterior);
+				Node<Jogador> nodeDoAtualJogador = jogo.getJogadores().getNodeByInfo(jogo.getVez());
+				
+				Jogador anterior = null; 
+				if(jogo.getSentido() == Sentido.HORARIO)
+					anterior = nodeDoAtualJogador.getBack().getInfo();
+				else if(jogo.getSentido() == Sentido.ANTI_HORARIO)
+					anterior = nodeDoAtualJogador.getFront().getInfo();
+				else
+					anterior = nodeDoAtualJogador.getInfo();
+				
 				vw.removeJogador(anterior.getNome());
+				jogo.getJogadores().remove(anterior);
 				break;
 				
 			case INVERTER_JOGO:

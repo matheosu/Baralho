@@ -1,5 +1,6 @@
 package viewer;
 
+import model.Carta;
 import model.Jogador;
 import pilhaEncadeada.Pilha;
 
@@ -9,6 +10,8 @@ public interface IViewerJogo extends IViewer{
 	public abstract void setVez(Jogador j);
 	public abstract void setHistorico(String s);
 	public abstract void setJogadores(Pilha<Jogador> jogadores);
+	public abstract void setCarta(Carta c);
+	
 	public abstract void removeJogador(String nome);
 	
 	public abstract void enableButtons(boolean flag);
